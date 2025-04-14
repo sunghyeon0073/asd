@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>나만의 앨범</title>
+        <style>
+            /* 구글 웹폰트 - 고운돋움체 불러오기 */
+            @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap');
+
+            /* 전체 페이지 기본 스타일 설정 */
+            body {
+                font-family: 'Gowun Dodum', sans-serif;
+                background: linear-gradient(135deg, #fceabb, #f8b500);
+                /* 배경 그라데이션 */
+                margin: 0;
+                padding: 20px;
+                color: #333;
+            }
+
+            /* 제목 스타일 */
+            h1 {
+                text-align: center;
+                font-size: 2.5em;
+                color: #ffffff;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+                /* 그림자 효과 */
+                margin-bottom: 20px;
+            }
+
+            /* 셀렉트 박스 스타일 */
+            select {
+                display: block;
+                margin: 0 auto 30px;
+                padding: 10px 15px;
+                border: none;
+                border-radius: 10px;
+                font-size: 1em;
+                background-color: #ffffffcc;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                cursor: pointer;
+            }
+
+            /* 앨범 그리드 설정 */
+            .album {
+                display: grid;
+                grid-template-columns: repeat(6, 1fr);
+                /* 6열 그리드 */
+                gap: 12px;
+                padding: 10px;
+                justify-content: center;
+            }
+
+            /* 개별 사진 카드 스타일 */
+            .photo {
+                background-color: #ffffff;
+                border-radius: 10px;
+                padding: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            /* 마우스 오버 시 카드 부드럽게 떠오르는 효과 */
+            .photo:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            }
+
+            /* 이미지 스타일 */
+            .photo img {
+                width: 100%;
+                height: 120px;
+                object-fit: cover;
+                /* 비율 유지하며 자르기 */
+                border-radius: 8px;
+            }
+
+            /* 사진 제목 */
+            .photo-title {
+                margin-top: 8px;
+                font-weight: bold;
+                font-size: 1em;
+                color: #444;
+            }
+
+            /* 페이지네이션 컨테이너 */
+            .pagination {
+                text-align: center;
+                margin-top: 20px;
+            }
+
+            /* 페이지네이션 버튼 스타일 */
+            .pagination button {
+                margin: 0 5px;
+                padding: 6px 12px;
+                border: none;
+                background-color: #ffffffcc;
+                border-radius: 5px;
+                font-size: 1em;
+                cursor: pointer;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            /* 현재 페이지 버튼 강조 */
+            .pagination button.active {
+                background-color: #ffcc00;
+                font-weight: bold;
+            }
+
+            /* 모달 전체 배경 스타일 */
+            .modal {
+                display: none;
+                /* 기본 숨김 */
+                position: fixed;
+                z-index: 10;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.8);
+                justify-content: center;
+                align-items: center;
+            }
+
+            /* 모달 내부 이미지 박스 */
+            .modal-content {
+                width: 80%;
+                max-width: 700px;
+                max-height: 90%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                animation: fadeIn 0.3s ease;
+            }
+
+            .modal-content img {
+                width: 100%;
+                height: auto;
+                max-height: 600px;
+                object-fit: contain;
+                border-radius: 10px;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: scale(0.9);
+                }
+                to {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+            }
+
+            /* 반응형 스타일 */
+            @media (max-width: 1024px) {
+                .album {
+                    grid-template-columns: repeat(4, 1fr);
+                }
+            }
+
+            @media (max-width: 768px) {
+                .album {
+                    grid-template-columns: repeat(3, 1fr);
+                }
+            }
+
+            @media (max-width: 480px) {
+                .album {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+        </style>
+    </head>
+    <body>
+
+        <h1>나만의 앨범</h1>
+
+        <!-- 셀렉트 박스: 특정 사진 선택 시 모달로 보기 -->
+        <select name="photoSelect" onchange="selectAndOpen(this.value)">
+            <option value="">-- 사진 선택 --</option>
+            <!-- 옵션에 표시될 사진 제목과 실제 파일명 -->
+            <option value="나의고양이들/애냥.png">애기냐옹</option>
+            <option value="나의고양이들/불냥.png">불만냐옹</option>
+            <option value="나의고양이들/눈없냥.png">눈없냥</option>
+            <option value="나의고양이들/붕냥.png">붕어냥</option>
+            <option value="나의고양이들/뭘보냥.png">뭘보냥</option>
+            <option value="나의고양이들/멍냥.png">멍냥</option>
+            <option value="나의고양이들/흥냥.png">흥분했냥</option>
+            <option value="나의고양이들/세계최강의동물.png">심바</option>
+            <option value="나의고양이들/푸바오.png">푸바오</option>
+            <option value="나의고양이들/기분좋냥.webp">기분좋냥</option>
+            <option value="나의고양이들/눈이없냥.png">점두개</option>
+            <option value="나의고양이들/재채기나오냥.png">재채기나오냥</option>
+            <option value="나의고양이들/우냥.png">우냥</option>
+            <option value="나의고양이들/흰냥1.jpg">흰냥1</option>
+            <option value="나의고양이들/흰냥2.jpg">흰냥2</option>
+            <option value="나의고양이들/흰냥3.jpg">흰냥3</option>
+            <option value="나의고양이들/흰냥4.jpg">흰냥4</option>
+            <option value="나의고양이들/흰냥5.jpg">흰냥5</option>
+            <option value="나의고양이들/흰냥6.jpg">흰냥6</option>
+            <option value="나의고양이들/흰냥7.jpg">흰냥7</option>
+            <option value="나의고양이들/검냥1.jpg">검냥1</option>
+            <option value="나의고양이들/검냥2.jpg">검냥2</option>
+            <option value="나의고양이들/검냥3.jpg">검냥3</option>
+            <option value="나의고양이들/검냥4.jpg">검냥4</option>
+            <option value="나의고양이들/차렷이다옹.png">차렷이다옹</option>
+            <option value="나의고양이들/인면냥.png">인면냥</option>
+            <option value="나의고양이들/호고곡.png">호고곡</option>
+            <option value="나의고양이들/바나냥.png">바나냥</option>
+            <option value="나의고양이들/냐옹이다옹.png">냐옹이다옹</option>
+            <option value="나의고양이들/모름냥.jpg">모름냥</option>
+        </select>
+
+        <!-- 앨범 이미지가 표시될 영역 -->
+        <div class="album" id="albumContainer"></div>
+
+        <!-- 페이지네이션 버튼이 표시될 영역 -->
+        <div class="pagination" id="paginationContainer"></div>
+
+        <!-- 사진 클릭 시 표시되는 모달 구조 -->
+        <div class="modal" id="photoModal" onclick="closeModal()">
+            <div class="modal-content">
+                <img id="modalImage" src="" alt="확대 사진"/>
+            </div>
+        </div>
+
+        <script>
+            // 사진 정보 배열 (파일 이름과 제목)
+            const photos = [
+                {
+                    src: "나의고양이들/애냥.png",
+                    title: "애기냐옹"
+                }, {
+                    src: "나의고양이들/불냥.png",
+                    title: "불만냐옹"
+                }, {
+                    src: "나의고양이들/눈없냥.png",
+                    title: "눈없냥"
+                }, {
+                    src: "나의고양이들/붕냥.png",
+                    title: "붕어냥"
+                }, {
+                    src: "나의고양이들/뭘보냥.png",
+                    title: "뭘보냥"
+                }, {
+                    src: "나의고양이들/멍냥.png",
+                    title: "멍냥"
+                }, {
+                    src: "나의고양이들/흥냥.png",
+                    title: "흥분했냥"
+                }, {
+                    src: "나의고양이들/세계최강의동물.png",
+                    title: "심바"
+                }, {
+                    src: "나의고양이들/푸바오.png",
+                    title: "푸바오"
+                }, {
+                    src: "나의고양이들/기분좋냥.webp",
+                    title: "기분좋냥"
+                }, {
+                    src: "나의고양이들/눈이없냥.png",
+                    title: "점두개"
+                }, {
+                    src: "나의고양이들/재채기나오냥.png",
+                    title: "재채기나오냥"
+                }, {
+                    src: "나의고양이들/우냥.png",
+                    title: "우냥"
+                }, {
+                    src: "나의고양이들/흰냥1.jpg",
+                    title: "흰냥1"
+                }, {
+                    src: "나의고양이들/흰냥2.jpg",
+                    title: "흰냥2"
+                }, {
+                    src: "나의고양이들/흰냥3.jpg",
+                    title: "흰냥3"
+                }, {
+                    src: "나의고양이들/흰냥4.jpg",
+                    title: "흰냥4"
+                }, {
+                    src: "나의고양이들/흰냥5.jpg",
+                    title: "흰냥5"
+                }, {
+                    src: "나의고양이들/흰냥6.jpg",
+                    title: "흰냥6"
+                }, {
+                    src: "나의고양이들/흰냥7.jpg",
+                    title: "흰냥7"
+                }, {
+                    src: "나의고양이들/검냥1.jpg",
+                    title: "검냥1"
+                }, {
+                    src: "나의고양이들/검냥2.jpg",
+                    title: "검냥2"
+                }, {
+                    src: "나의고양이들/검냥3.jpg",
+                    title: "검냥3"
+                }, {
+                    src: "나의고양이들/검냥4.jpg",
+                    title: "검냥4"
+                }, {
+                    src: "나의고양이들/차렷이다옹.png",
+                    title: "차렷이다옹"
+                }, {
+                    src: "나의고양이들/인면냥.png",
+                    title: "인면냥"
+                }, {
+                    src: "나의고양이들/호고곡.png",
+                    title: "호고곡"
+                }, {
+                    src: "나의고양이들/바나냥.png",
+                    title: "바나냥"
+                }, {
+                    src: "나의고양이들/냐옹이다옹.png",
+                    title: "냐옹이다옹"
+                }, {
+                    src: "나의고양이들/모름냥.jpg",
+                    title: "모름냥"
+                }
+            ];
+
+            // 한 페이지에 표시할 사진 수 12장당 1페이지라는 뜻
+            const perPage = 12;
+            let currentPage = 1;
+
+            // 해당 페이지의 사진들을 화면에 출력
+            function displayPhotos(page) {
+                const start = (page - 1) * perPage;
+                const end = start + perPage;
+                const visiblePhotos = photos.slice(start, end);
+
+                const container = document.getElementById("albumContainer");
+                container.innerHTML = "";
+
+                visiblePhotos.forEach(photo => {
+                    const div = document.createElement("div");
+                    div.className = "photo";
+                    div.innerHTML = `
+                    <img src="${photo.src}" onclick="openModal('${photo.src}')">
+                    <div class="photo-title">${photo.title}</div>
+                `;
+                    container.appendChild(div);
+                });
+
+                updatePagination();
+            }
+
+            // 페이지 업데이트
+            function updatePagination() {
+                const totalPages = Math.ceil(photos.length / perPage);
+                const pagination = document.getElementById("paginationContainer");
+                pagination.innerHTML = "";
+
+                for (let i = 1; i <= totalPages; i++) {
+                    const btn = document.createElement("button");
+                    btn.textContent = i;
+                    if (i === currentPage) 
+                        btn
+                            .classList
+                            .add("active");
+                    btn.onclick = () => {
+                        currentPage = i;
+                        displayPhotos(currentPage);
+                    };
+                    pagination.appendChild(btn);
+                }
+            }
+
+            // 이미지 클릭 시 모달 열기
+            function openModal(src) {
+                document
+                    .getElementById("modalImage")
+                    .src = src;
+                document
+                    .getElementById("photoModal")
+                    .style
+                    .display = "flex";
+            }
+
+            // 모달 닫기
+            function closeModal() {
+                document
+                    .getElementById("photoModal")
+                    .style
+                    .display = "none";
+            }
+
+            // 셀렉트 박스로 이미지 선택 시 모달 열기
+            function selectAndOpen(imageSrc) {
+                if (imageSrc) {
+                    openModal(imageSrc);
+                }
+            }
+
+            // 페이지 로드시 첫 페이지 표시
+            displayPhotos(currentPage);
+        </script>
+    </body>
+</html>

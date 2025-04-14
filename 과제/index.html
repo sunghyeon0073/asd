@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>나만의 앨범</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap');
+
+        body {
+            font-family: 'Gowun Dodum', sans-serif;
+            background: linear-gradient(135deg, #f8cdda, #1d2b64);
+            margin: 0;
+            padding: 40px;
+            color: #fff;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.8em;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .group-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .album-group {
+            background-color: #ffffff22;
+            padding: 200px 100px;
+            border-radius: 15px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .album-group:hover {
+            background-color: #ffffff44;
+            transform: scale(1.05);
+        }
+
+        .album-group a {
+            text-decoration: none;
+            color: #fff;
+            font-size: 1.4em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>나만의 앨범 선택</h1>
+
+    <div class="group-container">
+        <div class="album-group" onclick="location.href='고양이.html'">
+            <a>😸 고양이 앨범</a>
+        </div>
+        <div class="album-group" onclick="location.href='히어로.html'">
+            <a>🦸‍♂️ 히어로 앨범</a>
+        </div>
+    </div>
+    
+</body>
+</html>
